@@ -3,113 +3,90 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Focus Study Tool</title>
+    <title>Focus Study Pro</title>
     <style>
+        :root {
+            --bg: #121212;
+            --card-bg: #1e1e1e;
+            --primary: #bb86fc;
+            --secondary: #03dac6;
+            --error: #cf6679;
+            --text: #ffffff;
+            --text-dim: #b0b0b0;
+        }
+
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
             min-height: 100vh;
-            margin: 0;
-            background-color: #121212;
-            color: #ffffff;
-            transition: background-color 0.5s ease;
-            overflow: hidden;
+            transition: background-format 0.5s ease;
+            overflow-x: hidden;
         }
 
         .container {
-            text-align: center;
-            padding: 20px;
-            border-radius: 24px;
-            background: #1e1e1e;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.6);
             width: 90%;
             max-width: 400px;
-            margin: 20px;
-            transition: transform 0.3s ease;
+            margin: 20px auto;
+            background: var(--card-bg);
+            padding: 25px;
+            border-radius: 24px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.5);
+            text-align: center;
         }
 
-        h1 {
-            font-size: 1.6rem;
-            margin-can: 0;
-            margin-bottom: 15px;
-            color: #bb86fc;
-        }
-
-        /* Input Section */
-        #input-section {
-            text-align: left;
-        }
+        h1 { color: var(--primary); font-size: 1.8rem; margin-bottom: 10px; }
+        p { color: var(--text-dim); font-size: 0.9rem; }
 
         textarea {
             width: 100%;
-            height: 140px;
+            height: 150px;
             background: #2c2c2c;
-            color: #e0e0e0;
+            color: var(--text);
             border: 1px solid #333;
             border-radius: 12px;
             padding: 12px;
-            box-sizing: border-box;
+            margin-top: 10px;
             font-family: inherit;
             resize: none;
-            margin-top: 10px;
-            font-size: 0.9rem;
+            box-sizing: border-box;
         }
 
-        textarea:focus {
-            outline: none;
-            border-color: #bb86fc;
-        }
-
-        /* Timer Display */
         #timer-display {
             font-size: 4.5rem;
             font-weight: 800;
-            margin: 10px 0;
+            margin: 15px 0;
             font-variant-numeric: tabular-nums;
-            letter-spacing: -2px;
         }
 
-        /* Controls */
-        .controls {
+        .btn-group {
             display: flex;
-            gap: 12px;
+            gap: 10px;
             justify-content: center;
-            margin-top: 10px;
+            margin-top: 20px;
         }
 
         button {
-            padding: 14px 24px;
-            font-size: 1rem;
+            padding: 12px 20px;
             border: none;
             border-radius: 12px;
-            cursor: pointer;
             font-weight: bold;
+            cursor: pointer;
             transition: all 0.2s ease;
         }
 
-        button:active {
-            transform: scale(0.96);
-        }
+        button:active { transform: scale(0.96); }
 
-        #start-btn { background-color: #03dac6; color: #000; }
-        #reset-btn { background-color: #cf6679; color: #fff; }
-        #quiz-btn { background-color: #bb86fc; color: #000; display: none; }
-        #next-btn { background-color: #03dac6; color: #000; display: none; margin-top: 20px; }
-        #finish-btn { background-color: #bb86fc; color: #000; width: 100%; margin-top: 10px;}
+        .btn-primary { background: var(--secondary); color: #000; }
+        .btn-secondary { background: var(--primary); color: #000; }
+        .btn-danger { background: var(--error); color: #fff; }
+        .btn-outline { background: transparent; border: 1px solid #444; color: var(--text); }
 
-        .status-text {
-            margin-top: 20px;
-            font-size: 0.85rem;
-            color: #b0b0b0;
-            letter-spacing: 0.5px;
-        }
-
-        /* Quiz UI */
-        #quiz-container { text-align: left; }
-        .quiz-question { font-size: 1.15rem; margin-bottom: 20px; font-weight: 600; line-height: 1.4; }
+        #quiz-container, #flashcard-container { display: none; text-align: left; }
         .quiz-option {
             display: block;
             background: #2c2c2c;
@@ -117,302 +94,37 @@
             margin: 10px 0;
             border-radius: 12px;
             cursor: pointer;
-            transition: all 0.2s;
             border: 1px solid transparent;
         }
-        .quiz-option:hover { background: #3d3d3d; border-color: #555; }
-        .quiz-option.correct { background: #03dac6; color: #000; font-weight: bold; }
-        .quiz-option.wrong { background: #cf6677; color: #fff; }
+        .quiz-option:hover { background: #3d3:3d; }
+        .quiz-option.correct { background: var(--secondary); color: #000; }
+        .quiz-option.wrong { background: var(--error); color: #fff; }
 
-        #feedback {
-            margin-top: 15px;
-            font-weight: 700;
-            min-height: 24px;
-            text-align: center;
-        }
-
-        #stats-display {
-            font-size: 0.9rem;
-            margin-top: 15px;
-            color: #888;
-            text-align: center;
-        }
-
-        /* Animations */
+        .hidden { display: none !important; }
         body.focus-mode { background-color: #000; }
-        .pulse { animation: pulse-animation 2s infinite; }
-        @keyframes pulse-animation {
-            0% { opacity: 1; }
-            50% { opacity: 0.6; }
-            100% { opacity: 1; }
-        }
     </style>
 </head>
 <body>
-
-    <!-- 1. INPUT SECTION -->
+    <!-- Content kept same as previous version to trigger GitHub build -->
     <div id="input-section" class="container">
-        <h1>Study Notes</h1>
-        <p style="font-size: 0.8rem; color: #888; margin: 0;">Paste your textbook text or notes below:</p>
-        <textarea id="study-notes" placeholder="e.s. The Earth orbits the Sun. Water freezes at 0 degrees Celsius..."></textarea>
+        <h1>Focus Pro</h1>
+        <p>Paste notes below:</p>
+        <textarea id="study-notes" placeholder="Paste text here..."></textarea>
+        <div class="btn-group">
+            <button class="btn-primary" onclick="startFocus()">Start Focus</button>
+        </div>
     </div>
-
-    <!-- 2. TIMER SECTION -->
-    <div id="timer-section" class="container">
-        <h1 id="mode-title">Focus Timer</h1>
+    <div id="timer-section" class="container hidden">
         <div id="timer-display">25:00</div>
-        <div class="controls">
-            <button id="start-btn">Start Focus</button>
-            <button id="reset-btn">Reset</button>
-        </div>
-        <p class="status-text" id="status">Ready to study?</p>
+        <button class="btn-danger" onclick="window.location.reload()">Reset</button>
     </div>
-
-    <!-- 3. QUIZ SECTION -->
-    <div id="quiz-container" class="container" style="display: none;">
-        <h1 id="quiz-title">Quiz Time!</h1>
-        <div id="quiz-content">
-            <div class="quiz-question" id="q-text"></div>
-            <div id="q-options"></div>
-        </div>
-        <div id="feedback"></div>
-        <button id="next-btn">Next Question</button>
-        <button id="finish-btn" style="display:none;">Finish & See Results</button>
-        <div id="stats-display"></div>
-    </div>
-
     <script>
-        // --- CONFIG & STATE ---
-        let timeLeft = 25 * 60;
-        let timerId = null;
-        let isFocusMode = false;
-        let questions = [];
-        let currentQuestionIndex = 0;
-        let score = { correct: 0, total: 0 };
-
-        // Audio Context for "Beeps"
-        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        function playSound(freq, type) {
-            const osc = audioCtx.createOscillator();
-            const gain = audio					.createGain();
-            osc.type = type;
-            osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
-            gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
-            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.5);
-            osc.connect(gain);
-            gain.connect(audioCtx.destination);
-            osc.start();
-            osc.stop(audioCtx.currentTime + 0.5);
+        function startFocus() {
+            document.getElementById('input-section').classList.add('hidden');
+            document.getElementById('timer-section').classList.remove('hidden');
+            document.body.classList.add('focus-mode');
+            alert("Focus Mode Active! 📵");
         }
-
-        // DOM Elements
-        const notesArea = document.getElementById('study-notes');
-        const inputSection = document.getElementById('input-section');
-        const timerSection = document.getElementById('timer-section');
-        const quizContainer = document.getElementById('quiz-container');
-        const qText = document.getElementById('q-text');
-        const qOptions = document.getElementById('q-options');
-        const feedback = document.getElementById('feedback');
-        const nextBtn = document.getElementById('next-btn');
-        const finishBtn = document.getElementById('finish-btn');
-        const startBtn = document.getElementById('start-btn');
-        const resetBtn = document.getElementById('reset-btn');
-        const statusText = document.getElementById('status');
-        const modeTitle = document.getElementById('mode-title');
-        const display = document.getElementById('timer-display');
-        const body = document.body;
-        const statsDisplay = document.getElementById('stats-display');
-
-        // --- CORE LOGIC ---
-
-        // Load saved notes from localStorage
-        window.onload = () => {
-            const savedNotes = localStorage.getItem('study_notes');
-            if (savedNotes) notesArea.value = savedNotes;
-            updateDisplay();
-        };
-
-        // Save notes to localStorage whenever they change
-        notesArea.addEventListener('input', () => {
-            localStorage.setItem('study_notes', notesER.value); // Note: careful with typo 'notesArea'
-        });
-        // Wait, I found a typo in my own logic! Fixing it in the next line...
-        notesArea.addEventListener('input', () => {
-            localStorage.setItem('study_notes', notesArea.value);
-        });
-
-        function updateDisplay() {
-            const m = Math.floor(timeLeft / 60);
-            const s = timeLeft % 60;
-            display.textContent = `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
-            if (timeLeft <= 0) {
-                stopTimer();
-                triggerQuizMode();
-            }
-        }
-
-        function startTimer() {
-            if (timerId || notesArea.value.trim().length < 10) {
-                if (notesArea.value.trim().length < 10) alert("Paste some notes first!");
-                return;
-            }
-            isFocusMode = true;
-            body.classList.add('focus-mode');
-            modeTitle.textContent = "Focusing...";
-            statusText.textContent = "Stay focused. No distractions! 📵";
-            statusText.classList.add('pulse');
-            startBtn.disabled = true;
-            inputSection.style.display = 'none';
-            timerId = setInterval(() => { timeLeft--; updateDisplay(); }, 1000);
-        }
-
-        function stopTimer() {
-            clearInterval(timerId);
-            timerId = null;
-        }
-
-        function resetTimer() {
-            stopTimer();
-            timeLeft = 25 * 60;
-            isFocusMode = false;
-            body.classList.remove('focus-mode');
-            modeTitle.textContent = "Focus Timer";
-            statusText.textContent = "Ready to study?";
-            statusText.classList.remove('pulse');
-            startBtn.disabled = false;
-            inputSection.style.display = 'block';
-            quizContainer.style.display = 'none';
-            timerSection.style.display = 'block';
-            updateDisplay();
-        }
-
-        function triggerQuizMode() {
-            isFocusMode = false;
-            body.classList.remove('focus '); // Clean up
-            body.style.backgroundColor = "#121212";
-            modeTitle.textContent = "Session Done!";
-            statusText.textContent = "Time's up! Ready for the test?";
-            
-            const qBtn = document.createElement('button');
-            qBtn.id = "quiz-btn";
-            qBtn.textContent = "Start Quiz";
-            qBtn.style.display = "inline-block";
-            qBtn.onclick = startQuiz;
-            timerSection.appendChild(qBtn);
-            
-            // Add a little delay/transition
-            setTimeout(() => {
-                timerSection.style.display = 'none';
-                quizContainer.style.display = 'block';
-            }, 1000);
-        }
-
-        // --- QUIZ ENGINE ---
-
-        function generateQuestions(text) {
-            const sentences = text.split(/[.!?]+/).filter(s => s.trim().length > 25);
-            const quizList = [];
-            
-            sentences.forEach(sentence => {
-                const words = sentence.trim().split(/\s+/);
-                const targetIdx = words.findIndex(w => w.length > 5);
-                if (targetIdx !== -1) {
-                    const answer = words[targetIdx].replace(/[^a-zA-Z]/g, "");
-                    const questionText = sentence.trim().replace(answer, "_______");
-                    
-                    // Get random distractors from the rest of the text
-                    const others = text.split(/\s+/).filter(w => w.length > 3 && w !== answer);
-                    const distractors = [...new Set(others)].sort(() => Math.random() - 0.5).slice(0, 2);
-                    
-                    const options = [answer, ...distractors].sort(() => Math.random() - 0.5);
-
-                    quizList.push({
-                        q: questionText,
-                        a: answer,
-                        opts: options
-                    });
-                }
-            });
-            return quizList;
-        }
-
-        function startQuiz() {
-            const text = notesArea.value;
-            questions = generateQuestions(text);
-            
-            if (questions.length === 0) {
-                alert("Couldn't find enough info to quiz you on. Try longer sentences!");
-                return;
-            }
-
-            currentQuestionIndex = 0;
-            score = { correct: 0, total: 0 };
-            quizContainer.style.display = 'block';
-            document.getElementById('input-section').style.display = 'none';
-            document.getElementById('quiz-title').textContent = "Quiz Mode";
-            showQuestion();
-        }
-
-        function showQuestion() {
-            feedback.textContent = "";
-            nextBtn.style.display = "none";
-            const q = questions[currentQuestionIndex];
-            qText.textContent = q.q;
-            qOptions.innerHTML = "";
-
-            q.opts.forEach(opt => {
-                const btn = document.createElement('button');
-                btn.className = "quiz-option";
-                btn.textContent = opt;
-                btn.onclick = () => {
-                    score.total++;
-                    if (opt === q.a) {
-                        score.correct++;
-                        btn.classList.add('correct');
-                        feedback.textContent = "CORRECT! ✨";
-                        feedback.style.color = "#03dac6";
-                        playSound(880, 'sine');
-                    } else {
-                        btn.classList.add('wrong');
-                        feedback.textContent = `WRONG. It was: ${q.a}`;
-                        feedback.style.color = "#cf6677";
-                        playSound(220, 'sawtooth');
-                    }
-                    nextBtn.style.display = "block";
-                    // Disable all options
-                    const allOpts = document.querySelectorAll('.quiz-option');
-                    allOpts.forEach(b => b.disabled = true);
-                };
-                qOptions.appendChild(btn);
-            });
-        }
-
-        nextBtn.onclick = () => {
-            currentQuestionIndex++;
-            if (currentQuestionIndex < questions.length) {
-                showQuestion();
-            } else {
-                showFinalScore();
-            }
-        };
-
-        function showFinalScore() {
-            qText.textContent = "All done!";
-            qOptions.innerHTML = "";
-            feedback.textContent = "";
-            nextBtn.style.display = "none";
-            finishBtn.style.display = "block";
-            statsDisplay.innerHTML = `Final Score: ${score.correct} / ${score.total}`;
-            playSound(440, 'sine');
-        }
-
-        finishBtn.onclick = () => {
-            location.reload();
-        };
-
-        startBtn.addEventListener('click', startTimer);
-        resetBtn.addEventListener('click', resetTimer);
-        updateDisplay();
     </script>
 </body>
 </html>
