@@ -1,130 +1,876 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="nl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#7b2ff7">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <title>Focus Study Pro</title>
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+    <link rel="apple-touch-icon" href="icon-512.png">
     <style>
         :root {
-            --bg: #121212;
-            --card-bg: #1e1e1e;
-            --primary: #bb86fc;
-            --secondary: #03dac6;
-            --error: #cf6679;
+            --bg: #0f0f1a;
+            --card-bg: #1a1a2e;
+            --primary: #7b2ff7;
+            --secondary: #00c9a7;
+            --error: #ff4757;
+            --warning: #ffa502;
+            --green: #2ecc71;
             --text: #ffffff;
-            --text-dim: #b0b0b0;
+            --text-dim: #a0a0b0;
+            --accent: #00d2ff;
+            --radius: 18px;
+            --shadow: 0 10px 30px rgba(0,0,0,0.6);
         }
 
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             background-color: var(--bg);
             color: var(--text);
             margin: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
+            padding: 20px 15px;
             min-height: 100vh;
-            transition: background-format 0.5s ease;
+            transition: background-color 0.3s ease, color 0.3s ease;
             overflow-x: hidden;
         }
 
-        .container {
-            width: 90%;
-            max-width: 400px;
-            margin: 20px auto;
-            background: var(--card-bg);
-            padding: 25px;
-            border-radius: 24px;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.5);
-            text-align: center;
+        .app-container {
+            max-width: 420px;
+            margin: 0 auto;
         }
 
-        h1 { color: var(--primary); font-size: 1.8rem; margin-bottom: 10px; }
-        p { color: var(--text-dim); font-size: 0.9rem; }
+        /* Header */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding: 0 5px;
+        }
 
+        .header h1 {
+            font-size: 1.6rem;
+            margin: 0;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 800;
+        }
+
+        .settings-btn {
+            background: rgba(255,255,255,0.1);
+            border: none;
+            color: var(--text);
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Cards */
+        .card {
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            padding: 24px;
+            box-shadow: var(--shadow);
+            margin-bottom: 20px;
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .card-title {
+            font-size: 1.1rem;
+            margin-bottom: 12px;
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        /* Camera/Upload Area */
+        .camera-area {
+            border: 2px dashed rgba(255,255,255,0.2);
+            border-radius: var(--radius);
+            padding: 40px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: rgba(255,255,255,0.02);
+        }
+
+        .camera-area:hover, .camera-area:active {
+            border-color: var(--secondary);
+            background: rgba(0,201,167,0.05);
+        }
+
+        .camera-icon {
+            font-size: 3rem;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        .camera-text {
+            color: var(--text-dim);
+            font-size: 0.95rem;
+        }
+
+        .camera-hint {
+            font-size: 0.8rem;
+            color: var(--secondary);
+            margin-top: 8px;
+            opacity: 0.8;
+        }
+
+        /* Preview */
+        .preview-box {
+            display: none;
+            margin-top: 15px;
+            position: relative;
+        }
+
+        .preview-box img {
+            width: 100%;
+            max-height: 250px;
+            object-fit: cover;
+            border-radius: 12px;
+            border: 2px solid var(--secondary);
+        }
+
+        .remove-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(0,0,0,0.8);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 32px;
+            height: 32px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Inputs */
         textarea {
             width: 100%;
-            height: 150px;
-            background: #2c2c2c;
+            height: 100px;
+            background: rgba(255,255,255,0.05);
             color: var(--text);
-            border: 1px solid #333;
+            border: 1px solid rgba(255,255,255,0.1);
             border-radius: 12px;
-            padding: 12px;
-            margin-top: 10px;
+            padding: 14px;
             font-family: inherit;
-            resize: none;
-            box-sizing: border-box;
+            resize: vertical;
+            margin-top: 10px;
         }
 
-        #timer-display {
-            font-size: 4.5rem;
-            font-weight: 800;
-            margin: 15px 0;
-            font-variant-numeric: tabular-nums;
+        textarea:focus {
+            outline: none;
+            border-color: var(--secondary);
+        }
+
+        /* Buttons */
+        .btn {
+            width: 100%;
+            padding: 16px;
+            border: none;
+            border-radius: 14px;
+            font-size: 1.05rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn:active { transform: scale(0.98); }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), #5a1bd8);
+            color: white;
+            box-shadow: 0 4px 15px rgba(123, 47, 247, 0.4);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, var(--secondary), #00a88a);
+            color: #000;
+            box-shadow: 0 4px 15px rgba(0, 201, 167, 0.4);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, var(--error), #d63031);
+            color: white;
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 2px solid var(--primary);
+            color: var(--primary);
+        }
+        
+        .btn-quiz {
+            background: linear-gradient(135deg, #00b894, #00a88a);
+            color: #000;
+            box-shadow: 0 4px 15px rgba(0, 184, 148, 0.4);
         }
 
         .btn-group {
             display: flex;
             gap: 10px;
-            justify-content: center;
-            margin-top: 20px;
+            margin-top: 15px;
         }
 
-        button {
-            padding: 12px 20px;
-            border: none;
-            border-radius: 12px;
-            font-weight: bold;
+        .btn-group .btn { flex: 1; }
+
+        /* Timer */
+        .timer-display {
+            font-size: 5rem;
+            font-weight: 900;
+            text-align: center;
+            margin: 30px 0;
+            font-variant-numeric: tabular-nums;
+            background: linear-gradient(180deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: none;
+        }
+
+        /* Quiz Styles */
+        .quiz-container { display: none; }
+        
+        .quiz-question {
+            font-size: 1.1rem;
+            margin-bottom: 20px;
+            line-height: 1.5;
+            font-weight: 600;
+        }
+
+        .quiz-options { display: flex; flex-direction: column; gap: 12px; }
+
+        .quiz-option {
+            padding: 18px;
+            border-radius: 14px;
+            border: 2px solid rgba(255,255,255,0.1);
             cursor: pointer;
             transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: rgba(255,255,255,0.02);
         }
 
-        button:active { transform: scale(0.96); }
+        .quiz-option:hover { background: rgba(255,255,255,0.05); }
+        .quiz-option.selected { border-color: var(--accent); background: rgba(0,210,255,0.1); }
+        .quiz-option.correct { 
+            background: #2ecc71 !important; 
+            color: #000 !important; 
+            border-color: #27ae60 !important;
+        }
+        .quiz-option.wrong { 
+            background: #e74c3c !important; 
+            color: #fff !important; 
+            border-color: #c0392b !important;
+        }
 
-        .btn-primary { background: var(--secondary); color: #000; }
-        .btn-secondary { background: var(--primary); color: #000; }
-        .btn-danger { background: var(--error); color: #fff; }
-        .btn-outline { background: transparent; border: 1px solid #444; color: var(--text); }
+        .option-marker {
+            width: 28px;
+            height: 28px;
+            border-radius: 8px;
+            background: rgba(255,255,255,0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 0.9rem;
+            flex-shrink: 0;
+        }
 
-        #quiz-container, #flashcard-container { display: none; text-align: left; }
-        .quiz-option {
+        .feedback-box {
+            margin-top: 20px;
+            padding: 16px;
+            border-radius: 14px;
+            font-size: 0.95rem;
+            display: none;
+        }
+
+        .feedback-box.correct { 
+            background: rgba(46,204,113,0.15); 
+            color: #2ecc71; 
+            display: block; 
+            border: 1px solid #2ecc71;
+        }
+        .feedback-box.wrong { 
+            background: rgba(231,76,60,0.15); 
+            color: #e74c3c; 
             display: block;
-            background: #2c2c2c;
-            padding: 14px;
-            margin: 10px 0;
+            border: 1px solid #e74c3c;
+        }
+
+        /* Settings Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8);
+            z-index: 100;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal.open { display: flex; }
+
+        .modal-content {
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            padding: 24px;
+            max-width: 380px;
+            width: 100%;
+            max-height: 85vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-header h2 { margin: 0; font-size: 1.2rem; }
+
+        .close-modal {
+            background: none;
+            border: none;
+            color: var(--text);
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        .setting-item { margin-bottom: 18px; }
+        .setting-item label { display: block; margin-bottom: 6px; color: var(--text-dim); font-size: 0.9rem; }
+        .setting-item input[type="color"] { width: 100%; height: 40px; border: none; border-radius: 10px; cursor: pointer; }
+        .setting-item input[type="range"] { width: 100%; accent-color: var(--primary); }
+        
+        .toggle-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            background: rgba(255,255,255,0.05);
             border-radius: 12px;
             cursor: pointer;
-            border: 1px solid transparent;
         }
-        .quiz-option:hover { background: #3d3:3d; }
-        .quiz-option.correct { background: var(--secondary); color: #000; }
-        .quiz-option.wrong { background: var(--error); color: #fff; }
 
+        .toggle-switch {
+            width: 50px;
+            height: 26px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 13px;
+            position: relative;
+            transition: background 0.3s;
+        }
+
+        .toggle-switch.on { background: var(--secondary); }
+        
+        .toggle-switch::after {
+            content: '';
+            position: absolute;
+            width: 22px;
+            height: 22px;
+            background: white;
+            border-radius: 50%;
+            top: 2px;
+            left: 2px;
+            transition: transform 0.3s;
+        }
+
+        .toggle-switch.on::after { transform: translateX(24px); }
+
+        .colorblind-mode {
+            padding: 14px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 12px;
+            margin-bottom: 15px;
+        }
+
+        /* Hidden */
         .hidden { display: none !important; }
-        body.focus-mode { background-color: #000; }
+
+        /* Status Bar */
+        .status-bar {
+            text-align: center;
+            padding: 10px;
+            background: rgba(255,255,255,0.03);
+            border-radius: 12px;
+            margin-bottom: 15px;
+            font-size: 0.9rem;
+            color: var(--text-dim);
+        }
+
+        /* Animations */
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+            100% { transform: scale(1); }
+        }
+
+        .pulse { animation: pulse 2s infinite; }
     </style>
 </head>
 <body>
-    <!-- Content kept same as previous version to trigger GitHub build -->
-    <div id="input-section" class="container">
-        <h1>Focus Pro</h1>
-        <p>Paste notes below:</p>
-        <textarea id="study-notes" placeholder="Paste text here..."></textarea>
-        <div class="btn-group">
-            <button class="btn-primary" onclick="startFocus()">Start Focus</button>
+    <div class="app-container">
+        <!-- Header -->
+        <div class="header">
+            <h1>🧠 Focus Pro</h1>
+            <button class="settings-btn" onclick="openSettings()">⚙️</button>
+        </div>
+
+        <!-- Status Bar -->
+        <div class="status-bar" id="statusBar">Klaar om te beginnen 🚀</div>
+
+        <!-- Input Section -->
+        <div id="inputSection">
+            <div class="card">
+                <div class="card-title">📸 Maak een foto van je aantekeningen</div>
+                
+                <!-- Camera Input -->
+                <div class="camera-area" onclick="document.getElementById('cameraInput').click()">
+                    <span class="camera-icon">📷</span>
+                    <div class="camera-text">Tik hier om je camera te openen</div>
+                    <div class="camera-hint">Maak direct een foto of kies uit galerij</div>
+                </div>
+                
+                <input type="file" id="cameraInput" accept="image/*" capture="environment" style="display:none" onchange="handleImage(event)">
+                
+                <div class="preview-box" id="previewBox">
+                    <img id="previewImg" src="" alt="Preview">
+                    <button class="remove-btn" onclick="removeImage()">×</button>
+                </div>
+
+                <textarea id="notesInput" placeholder="✍️ Optioneel: schrijf hier je vragen of notities voor de quiz..."></textarea>
+            </div>
+
+            <div class="card">
+                <div class="card-title">⏱️ Kies je focus tijd</div>
+                <div class="btn-group">
+                    <button class="btn btn-secondary" onclick="setTimer(15)">15 min</button>
+                    <button class="btn btn-secondary" onclick="setTimer(25)">25 min</button>
+                    <button class="btn btn-secondary" onclick="setTimer(45)">45 min</button>
+                </div>
+            </div>
+
+            <div class="btn-group">
+                <button class="btn btn-quiz" onclick="startQuizNow()">🎯 Quiz Me</button>
+                <button class="btn btn-primary" onclick="startFocus()">⏱️ Focus Timer</button>
+            </div>
+        </div>
+
+        <!-- Timer Section -->
+        <div id="timerSection" class="hidden">
+            <div class="card">
+                <div class="timer-display" id="timerDisplay">25:00</div>
+                <p style="text-align:center; color:var(--text-dim);">🎯 Blijf gefocust! Je kunt je foto hieronder zien.</p>
+                
+                <div id="focusImageContainer" class="hidden">
+                    <img id="focusImage" style="width:100%; max-height:250px; object-fit:contain; border-radius:12px; border:2px solid var(--secondary);">
+                </div>
+
+                <div class="btn-group">
+                    <button class="btn btn-outline" onclick="toggleTimer()">⏸️ Pauze</button>
+                    <button class="btn btn-danger" onclick="resetApp()">⏹️ Stoppen</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quiz Section -->
+        <div id="quizSection" class="hidden">
+            <div class="card">
+                <div class="card-title">🎯 Quiz Tijd!</div>
+                
+                <div class="quiz-container" id="quizContainer">
+                    <div class="quiz-question" id="quizQuestion"></div>
+                    <div class="quiz-options" id="quizOptions"></div>
+                    <div class="feedback-box" id="feedbackBox"></div>
+                    <button class="btn btn-secondary" style="margin-top:15px" onclick="nextQuestion()">Volgende vraag ➡️</button>
+                </div>
+
+                <div class="feedback-box correct" style="text-align:center" id="quizComplete">
+                    🎉 Quiz voltooid!
+                </div>
+
+                <div class="btn-group">
+                    <button class="btn btn-outline" onclick="resetApp()">🏠 Terug naar Start</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Settings Modal -->
+        <div class="modal" id="settingsModal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>⚙️ Instellingen</h2>
+                    <button class="close-modal" onclick="closeSettings()">×</button>
+                </div>
+
+                <!-- Colors -->
+                <div class="setting-item">
+                    <label>Achtergrond kleur</label>
+                    <input type="color" id="bgColor" value="#0f0f1a" onchange="updateTheme()">
+                </div>
+                <div class="setting-item">
+                    <label>Kaart kleur</label>
+                    <input type="color" id="cardColor" value="#1a1a2e" onchange="updateTheme()">
+                </div>
+                <div class="setting-item">
+                    <label>Accent kleur 1</label>
+                    <input type="color" id="primaryColor" value="#7b2ff7" onchange="updateTheme()">
+                </div>
+                <div class="setting-item">
+                    <label>Accent kleur 2</label>
+                    <input type="color" id="secondaryColor" value="#00c9a7" onchange="updateTheme()">
+                </div>
+
+                <!-- Brightness -->
+                <div class="setting-item">
+                    <label>Belichting</label>
+                    <input type="range" id="brightness" min="50" max="150" value="100" onchange="updateBrightness()">
+                </div>
+
+                <!-- Colorblind Mode -->
+                <div class="colorblind-mode">
+                    <div class="toggle-container" onclick="toggleColorblind()">
+                        <div class="toggle-switch" id="colorblindToggle"></div>
+                        <div>
+                            <div style="font-weight:600;">Colorblind Modus</div>
+                            <div style="font-size:0.8rem; color:var(--text-dim);">Betere contrasten & vormen in plaats van alleen kleuren</div>
+                        </div>
+                    </div>
+                </div>
+
+                <button class="btn btn-secondary" onclick="saveSettings()">💾 Opslaan & Sluiten</button>
+            </div>
         </div>
     </div>
-    <div id="timer-section" class="container hidden">
-        <div id="timer-display">25:00</div>
-        <button class="btn-danger" onclick="window.location.reload()">Reset</button>
-    </div>
+
     <script>
-        function startFocus() {
-            document.getElementById('input-section').classList.add('hidden');
-            document.getElementById('timer-section').classList.remove('hidden');
-            document.body.classList.add('focus-mode');
-            alert("Focus Mode Active! 📵");
+        // State
+        let timerInterval = null;
+        let timeLeft = 25 * 60;
+        let paused = false;
+        let capturedImage = null;
+        let currentQuestionIndex = 0;
+        let isColorblind = false;
+
+        // Quiz Data (hardcoded demo, easily editable)
+        const quizData = [
+            {
+                q: "Wat is de hoofdfunctie van een 'focus timer'?",
+                options: ["Je afleiden van je werk", "Je helpen gefocust te blijven zonder afleiding", "Je computer uitzetten", "Spelletjes spelen"],
+                correct: 1,
+                explanation: "Een focus timer helpt je om onafgebroken te werken aan één taak!"
+            },
+            {
+                q: "Hoe lang duurt een standaard Pomodoro-sessie?",
+                options: ["5 minuten", "10 minuten", "25 minuten", "60 minuten"],
+                correct: 2,
+                explanation: "De klassieke Pomodoro-techniek gebruikt 25 minuten focustijd."
+            },
+            {
+                q: "Wat is een 'flashcard'?",
+                options: ["Een foto van je huis", "Een kaart met vraag aan de ene kant en antwoord aan de andere", "Een computeronderdeel", "Een app store"],
+                correct: 1,
+                explanation: "Flashcards helpen je om feiten uit je hoofd te leren!"
+            }
+        ];
+
+        // Handle Image Capture
+        function handleImage(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            
+            if (!file.type.startsWith('image/')) {
+                alert('Alleen afbeeldingen toegestaan! 📸');
+                return;
+            }
+            
+            const reader = new FileReader();
+            reader.onload = function(ev) {
+                capturedImage = ev.target.result;
+                document.getElementById('previewImg').src = capturedImage;
+                document.getElementById('previewBox').style.display = 'block';
+                document.querySelector('.camera-area').style.display = 'none';
+                document.getElementById('statusBar').textContent = 'Foto opgeslagen! 📷';
+            };
+            reader.readAsDataURL(file);
         }
+
+        function removeImage() {
+            capturedImage = null;
+            document.getElementById('cameraInput').value = '';
+            document.getElementById('previewBox').style.display = 'none';
+            document.querySelector('.camera-area').style.display = 'block';
+            document.getElementById('statusBar').textContent = 'Klaar om te beginnen 🚀';
+        }
+
+        function setTimer(minutes) {
+            timeLeft = minutes * 60;
+            paused = false;
+            clearInterval(timerInterval);
+            updateTimerDisplay();
+            document.getElementById('statusBar').textContent = `${minutes} minuten geselecteerd ⏱️`;
+        }
+
+        function startFocus() {
+            if (!capturedImage && !document.getElementById('notesInput').value.trim()) {
+                alert('Maak eerst een foto of schrijf iets! 📝');
+                return;
+            }
+            
+            document.getElementById('inputSection').classList.add('hidden');
+            document.getElementById('timerSection').classList.remove('hidden');
+            document.getElementById('statusBar').textContent = 'Focus mode active! 🎯';
+            
+            if (capturedImage) {
+                document.getElementById('focusImage').src = capturedImage;
+                document.getElementById('focusImageContainer').classList.remove('hidden');
+            }
+            
+            updateTimerDisplay();
+            startTimer();
+        }
+
+        function startQuizNow() {
+            if (!capturedImage && !document.getElementById('notesInput').value.trim()) {
+                alert('Maak eerst een foto of schrijf iets! 📝');
+                return;
+            }
+            
+            document.getElementById('inputSection').classList.add('hidden');
+            document.getElementById('quizSection').classList.remove('hidden');
+            document.getElementById('statusBar').textContent = '🎯 Quiz modus!';
+            
+            if (capturedImage) {
+                // In a real app, we'd show the image here during the quiz
+            }
+            
+            startQuiz();
+        }
+
+        function startTimer() {
+            clearInterval(timerInterval);
+            timerInterval = setInterval(() => {
+                if (!paused) {
+                    timeLeft--;
+                    updateTimerDisplay();
+                    if (timeLeft <= 0) {
+                        clearInterval(timerInterval);
+                        setTimeout(startQuiz, 500);
+                    }
+                }
+            }, 1000);
+        }
+
+        function updateTimerDisplay() {
+            const m = Math.floor(timeLeft / 60);
+            const s = timeLeft % 60;
+            document.getElementById('timerDisplay').textContent = `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+        }
+
+        function toggleTimer() {
+            paused = !paused;
+            document.getElementById('statusBar').textContent = paused ? '⏸️ Gepauzeerd' : '🎯 Focus actief!';
+        }
+
+        function resetApp() {
+            clearInterval(timerInterval);
+            timeLeft = 25 * 60;
+            paused = false;
+            currentQuestionIndex = 0;
+            
+            document.getElementById('inputSection').classList.remove('hidden');
+            document.getElementById('timerSection').classList.add('hidden');
+            document.getElementById('quizSection').classList.add('hidden');
+            document.getElementById('focusImageContainer').classList.add('hidden');
+            document.getElementById('statusBar').textContent = 'Klaar om te beginnen 🚀';
+            
+            // Reset timer display
+            updateTimerDisplay();
+        }
+
+        // Quiz Logic
+        function startQuiz() {
+            document.getElementById('timerSection').classList.add('hidden');
+            document.getElementById('quizSection').classList.remove('hidden');
+            document.getElementById('statusBar').textContent = '🎉 Tijd voor de quiz!';
+            showQuestion();
+        }
+
+        function showQuestion() {
+            if (currentQuestionIndex >= quizData.length) {
+                document.getElementById('quizContainer').classList.add('hidden');
+                document.getElementById('quizComplete').classList.remove('hidden');
+                document.getElementById('feedbackBox').className = 'feedback-box';
+                document.getElementById('feedbackBox').style.display = 'none';
+                return;
+            }
+            
+            const q = quizData[currentQuestionIndex];
+            document.getElementById('quizQuestion').textContent = q.q;
+            document.getElementById('feedbackBox').className = 'feedback-box';
+            document.getElementById('feedbackBox').style.display = 'none';
+            document.querySelector('.quiz-container button').style.display = 'none';
+            
+            const optionsDiv = document.getElementById('quizOptions');
+            optionsDiv.innerHTML = '';
+            
+            q.options.forEach((opt, i) => {
+                const div = document.createElement('div');
+                div.className = 'quiz-option';
+                div.innerHTML = `<div class="option-marker">${String.fromCharCode(65 + i)}</div><span>${opt}</span>`;
+                div.onclick = () => checkAnswer(i);
+                optionsDiv.appendChild(div);
+            });
+        }
+
+        function checkAnswer(selected) {
+            const q = quizData[currentQuestionIndex];
+            const correct = q.correct;
+            const options = document.querySelectorAll('.quiz-option');
+            
+            options.forEach((opt, i) => {
+                opt.style.pointerEvents = 'none';
+                if (i === correct) {
+                    opt.classList.add('correct');
+                    opt.querySelector('.option-marker').textContent = '✓';
+                } else if (i === selected && i !== correct) {
+                    opt.classList.add('wrong');
+                    opt.querySelector('.option-marker').textContent = '✗';
+                }
+            });
+            
+            const fb = document.getElementById('feedbackBox');
+            if (selected === correct) {
+                fb.className = 'feedback-box correct';
+                fb.innerHTML = `✅ <strong>Goed zo!</strong><br>${q.explanation}`;
+            } else {
+                fb.className = 'feedback-box wrong';
+                fb.innerHTML = `❌ <strong>Niet juist, maar geen probleem!</strong><br>Het juiste antwoord is: <strong>${q.options[correct]}</strong><br>${q.explanation}`;
+            }
+            fb.style.display = 'block';
+            
+            document.querySelector('.quiz-container button').style.display = 'block';
+        }
+
+        function nextQuestion() {
+            currentQuestionIndex++;
+            showQuestion();
+        }
+
+        // Settings
+        function openSettings() { document.getElementById('settingsModal').classList.add('open'); }
+        function closeSettings() { document.getElementById('settingsModal').classList.remove('open'); }
+
+        function updateTheme() {
+            const bg = document.getElementById('bgColor').value;
+            const card = document.getElementById('cardColor').value;
+            const p = document.getElementById('primaryColor').value;
+            const s = document.getElementById('secondaryColor').value;
+            
+            document.documentElement.style.setProperty('--bg', bg);
+            document.documentElement.style.setProperty('--card-bg', card);
+            document.documentElement.style.setProperty('--primary', p);
+            document.documentElement.style.setProperty('--secondary', s);
+        }
+
+        function updateBrightness() {
+            const val = document.getElementById('brightness').value;
+            document.body.style.filter = `brightness(${val}%)`;
+        }
+
+        function toggleColorblind() {
+            isColorblind = !isColorblind;
+            document.getElementById('colorblindToggle').classList.toggle('on', isColorblind);
+            
+            if (isColorblind) {
+                document.documentElement.style.setProperty('--error', '#ff6b6b');
+                document.documentElement.style.setProperty('--secondary', '#ffd32a');
+                document.documentElement.style.setProperty('--primary', '#4a90d9');
+                document.documentElement.style.setProperty('--green', '#52b788');
+                document.body.style.filter = 'contrast(1.3)';
+            } else {
+                document.documentElement.style.setProperty('--error', '#ff4757');
+                document.documentElement.style.setProperty('--secondary', '#00c9a7');
+                document.documentElement.style.setProperty('--primary', '#7b2ff7');
+                document.documentElement.style.setProperty('--green', '#2ecc71');
+                document.body.style.filter = 'none';
+            }
+        }
+
+        function saveSettings() {
+            localStorage.setItem('focusTheme', JSON.stringify({
+                bg: document.getElementById('bgColor').value,
+                card: document.getElementById('cardColor').value,
+                p: document.getElementById('primaryColor').value,
+                s: document.getElementById('secondaryColor').value
+            }));
+            closeSettings();
+            document.getElementById('statusBar').textContent = 'Instellingen opgeslagen! 💾';
+        }
+
+        // Load saved settings
+        window.onload = function() {
+            const saved = localStorage.getItem('focusTheme');
+            if (saved) {
+                const t = JSON.parse(saved);
+                document.getElementById('bgColor').value = t.bg;
+                document.getElementById('cardColor').value = t.card;
+                document.getElementById('primaryColor').value = t.p;
+                document.getElementById('secondaryColor').value = t.s;
+                updateTheme();
+            }
+        };
+
+        // Service Worker Registratie (PWA ondersteuning)
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js')
+                    .then((reg) => {
+                        console.log('Service worker geregistreerd! 🚀');
+                    })
+                    .catch((err) => {
+                        console.log('Service worker registratie mislukt:', err);
+                    });
+            });
+        }
+
+        // PWA Install Prompt
+        let deferredPrompt = null;
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            // Toon install knop als je dat wilt
+            console.log('PWA installatie beschikbaar!');
+        });
+
+        window.addEventListener('appinstalled', () => {
+            deferredPrompt = null;
+            console.log('PWA geïnstalleerd!');
+        });
+
+        // Close modal on outside click
+        document.getElementById('settingsModal').addEventListener('click', (e) => {
+            if (e.target === document.getElementById('settingsModal')) closeSettings();
+        });
     </script>
 </body>
 </html>
